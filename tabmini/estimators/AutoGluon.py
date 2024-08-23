@@ -34,7 +34,7 @@ class AutoGluon(BaseEstimator, ClassifierMixin):
             path=str(path.absolute()),
             verbosity=0,
             log_to_file=True,
-            eval_metric="roc_auc",
+            eval_metric="mean_absolute_error", # add a method to reset for classification
             **kwargs
         )
 
@@ -71,10 +71,30 @@ class AutoGluon(BaseEstimator, ClassifierMixin):
             columns=feature_names_train
         )
 
-        self.predictor = self.predictor.fit(train_data, presets=self.presets, time_limit=self.time_limit)
+        self.predictor = self.predictor.fit(train_data, presets=self.presets, time_limit=self.time_limit, num_gpus=0)
         self.is_fitted_ = True
 
         return self
+    
+    def predict(self, X) -> np.ndarray:
+        """Predict regression targets for X.
+
+        Parameters
+        ----------
+        X : {array-like, sparse matrix}, shape (n_samples, n_features)
+            The input samples.
+
+        Returns
+        -------
+        y : ndarray, shape (n_samples,)
+            The predicted values.
+        """
+        X = check_array(X, accept_sparse=True)
+        check_is_fitted(self, 'is_fitted_')
+
+        eval_data = pd.DataFrame(X, columns=self.feature_names, dtype=object)
+        predictions = self.predictor.predict(eval_data, as_pandas=False)
+        return predictions
 
     # NOTE: Predict function has to come first in this file - otherwise, when trying to calculate a score,
     # SKLearn will assume this is a regressor instead of a classifier.

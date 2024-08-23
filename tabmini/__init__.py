@@ -45,9 +45,10 @@ def compare(
         scoring_method: str = "roc_auc",
         cv: int = 3,
         time_limit: int = 3600,
-        methods: set[str] = estimators.get_available_methods(),
+        framework: str = None,
         device: str = "cpu",
         n_jobs: int = -1,
+        task: str = 'classification',
         kwargs_per_classifier: dict[str, dict] = None
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
@@ -75,7 +76,7 @@ def compare(
             - A DataFrame containing the test scores.
             - A DataFrame containing the train scores.
     """
-    print(f"Evaluating {method_name} against {methods}...")
+    print(f"Evaluating {method_name} against {framework}...")
     # The result of scorer.compare is a dictionary shaped like
     # dataset_name: {method_name: (test_score, train_score)}
     compare_results: dict[str, dict[str, tuple[float, float]]] = scorer.compare(
@@ -86,9 +87,10 @@ def compare(
         scoring_method=scoring_method,
         cv=cv,
         time_limit=time_limit,
-        methods=methods,
+        framework=framework,
         device=device,
         n_jobs=n_jobs,
+        task=task,
         kwargs_per_classifier=kwargs_per_classifier,
     )
 
@@ -127,3 +129,4 @@ def get_meta_feature_analysis(
 
     """
     return meta_feature.get_meta_feature_analysis(dataset, results_wide, name_of_method_to_compare, correlation_method)
+ 
