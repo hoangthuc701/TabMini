@@ -4,7 +4,7 @@ from datetime import datetime
 import pandas as pd
 
 def run_experiment_in_env(env_name, output_path, time_limit):
-    return subprocess.Popen(['bash', 'run_experiment.sh', env_name, str(output_path), str(time_limit)])
+    return subprocess.Popen(['bash', 'run_experiment.sh', env_name, Path(output_path).as_posix(), str(time_limit)])
 
 def update_results(path, time_limit, framework):
     results = pd.read_csv(path / f"results_{time_limit}.csv")
@@ -29,16 +29,18 @@ def update_results(path, time_limit, framework):
 
 def main():
     datetime_str = datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
-    working_directory = Path.cwd() / "workdir" / f"Exp_{datetime_str}"
-    frameworks = ['tabpfn', 'hyperfast']
+    wsl_path = Path("workdir" , f"Exp_{datetime_str}")
+    full_path = Path.cwd() / wsl_path
+
+    frameworks = ['autoprognosis']
     processes = []
-    time_limits = [60, 120]
+    time_limits = [120]
 
     for time_limit in time_limits:
         for env in frameworks:
-            output_path = working_directory / env
+            output_path = full_path / env
             output_path.mkdir(parents=True, exist_ok=True)
-            process = run_experiment_in_env(env, output_path, time_limit)
+            process = run_experiment_in_env(env, Path(wsl_path, env), time_limit)
             processes.append((process, env, output_path, time_limit))
         
         for process, env, output_path, time_limit in processes:

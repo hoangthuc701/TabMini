@@ -49,11 +49,11 @@ def run_experiment(framework, output_path, time_limit):
         dataset,
         working_directory,
         scoring_method="roc_auc",
-        cv=3,
+        cv=2,
         time_limit=time_limit,
         framework=framework,
         device="cpu",
-        n_jobs=-1,  # Time Limit does not play nice with threads
+        n_jobs=1,  # Time Limit does not play nice with threads
     )
 
     test_scores.to_csv(output_path / f"results_{time_limit}.csv", index_label="PMLB dataset")
@@ -75,4 +75,7 @@ if __name__ == "__main__":
     framework   = sys.argv[1]
     output_path = Path(sys.argv[2])
     time_limit  = int(sys.argv[3])
+    output_path.mkdir(parents=True, exist_ok=True)
+    working_directory.mkdir(parents=True, exist_ok=True)
+
     run_experiment(framework, output_path, time_limit)

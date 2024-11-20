@@ -12,11 +12,11 @@ RUN conda init &&\
     eval "$(conda shell.bash hook)" &&\
     conda activate tabmini
 
-COPY requirements_${METHOD}.txt requirements.txt
+COPY requirements/requirements_${METHOD}.txt requirements.txt
 RUN pip install -r requirements.txt
 
-ENV APP_HOME /app
+ENV APP_HOME=/app
 WORKDIR $APP_HOME
 COPY . $APP_HOME
 
-ENTRYPOINT ["bash", "run_in_environment.sh", "${METHOD}", "${OUTPUT_PATH}", "${TIME_LIMIT}"]
+ENTRYPOINT ["python", "example.py"]
